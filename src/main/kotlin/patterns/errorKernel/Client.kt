@@ -1,7 +1,7 @@
 package patterns.errorKernel
 
 import kotlinx.coroutines.*
-import patterns.errorKernel.model.Job
+import patterns.simpleComponent.model.Job
 import kotlin.math.absoluteValue
 
 class Client(private val clientInterface: ClientInterface, private val id: Int) {

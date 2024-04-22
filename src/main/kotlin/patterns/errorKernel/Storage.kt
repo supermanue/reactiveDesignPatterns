@@ -1,6 +1,6 @@
 package patterns.errorKernel
 
-import patterns.errorKernel.model.Job
+import patterns.simpleComponent.model.Job
 import java.util.concurrent.atomic.AtomicInteger
 
 class Storage {

@@ -1,6 +1,6 @@
 package patterns.errorKernel
 
-import patterns.errorKernel.model.Job
+import patterns.simpleComponent.model.Job
 import patterns.errorKernel.model.ValidationResult
 
 class ClientInterface(private val storage: Storage, private val jobScheduling: JobScheduling) {

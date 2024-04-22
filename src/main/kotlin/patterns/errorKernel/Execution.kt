@@ -1,7 +1,7 @@
 package patterns.errorKernel
 
 import kotlinx.coroutines.*
-import patterns.errorKernel.model.Job
+import patterns.simpleComponent.model.Job
 import java.util.LinkedList
 import java.util.Queue
 import kotlin.math.absoluteValue

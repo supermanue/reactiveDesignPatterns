@@ -1,7 +1,7 @@
 package patterns.errorKernel
 
 import kotlinx.coroutines.*
-import patterns.errorKernel.model.Job
+import patterns.simpleComponent.model.Job
 import patterns.errorKernel.model.JobMetadata
 import patterns.errorKernel.model.ValidationResult
 import java.util.LinkedList
