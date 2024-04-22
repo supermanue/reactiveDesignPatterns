@@ -7,7 +7,7 @@ import java.util.Queue
 import kotlin.math.absoluteValue
 import kotlinx.coroutines.async
 
-class Execution(private val size: Int, private val jobScheduling: JobScheduling, private val storage: Storage) {
+class Execution(private val jobScheduling: JobScheduling, private val storage: Storage) {
 
     private var workers: Queue<Worker> = LinkedList<Worker>()
     private var lastWorkerId = 0
