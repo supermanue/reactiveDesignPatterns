@@ -1,4 +1,4 @@
-import patterns.errorKernel.Run
+import patterns.letItCrash.Run
 
 fun main() {
 
