@@ -13,20 +13,18 @@ import kotlin.math.absoluteValue
 class Execution(private val jobScheduling: JobScheduling, private val storage: Storage) {
 
     private var lastWorkerId = 0
-    private var workers: Cache<Int, Worker> =
+    private val workers: Cache<Int, Worker> =
         CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.SECONDS)
-            .removalListener(RemovalListener<Int, Worker>() { notification ->
-            println("Worker " + notification.key + " removed")
+            .removalListener(RemovalListener<Int, Worker> { notification ->
+                if (notification.wasEvicted()) println("Worker " + notification.key + " removed because of no heartbeat")
     }).build()
 
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     fun start(): List<Deferred<Unit>> {
-        println("Starting execution")
 
         //Escalation
-        println("Starting escalation")
         val workerEscalation = scope.async {
             while (true) {
                 scale()
@@ -35,7 +33,6 @@ class Execution(private val jobScheduling: JobScheduling, private val storage: S
         }
 
         //executors
-        println("Starting executors")
         val jobExecutor = scope.async {
             executeForever()
         }
@@ -44,10 +41,12 @@ class Execution(private val jobScheduling: JobScheduling, private val storage: S
     }
 
 
-    private fun scale() {
-        val size = storage.getAll().size
+    private suspend fun scale() {
+        val size = jobScheduling.queueSize()
         if (size > 15) {
-            workers.put(lastWorkerId, Worker(lastWorkerId))
+            val worker = Worker(lastWorkerId) { acceptHeartbeat(it) }
+            worker.start()
+            workers.put(lastWorkerId, worker)
             lastWorkerId += 1
             println("Scaling up list of workers to ${workers.size()}")
         } else if (size < 3) {
@@ -83,11 +82,30 @@ class Execution(private val jobScheduling: JobScheduling, private val storage: S
         }
         return chosenWorker
     }
+
+    private fun acceptHeartbeat(workerId: Int){
+        val worker = workers.getIfPresent(workerId)
+        if (worker != null) workers.put(workerId, worker)
+    }
 }
 
 enum class WorkerStatus { IDLE, WORKING }
 
-class Worker(val id: Int, var status: WorkerStatus = WorkerStatus.IDLE) {
+class Worker(val id: Int, var status: WorkerStatus = WorkerStatus.IDLE, val heartbeatCallback: (Int) -> Unit) {
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    suspend fun start(){
+        scope.async {
+            while (true) {
+                if (Math.random().absoluteValue < 0.7) //Doesn't always callback, so some will be killed
+                    heartbeatCallback(id)
+                delay(8000)
+            }
+        }
+
+    }
+
+
     suspend fun execute(job: Job) {
         status = WorkerStatus.WORKING
         println("Worker $id. Executing job: ${job.content}")
