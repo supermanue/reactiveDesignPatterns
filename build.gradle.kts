@@ -16,6 +16,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1-Beta")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1-Beta")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1-Beta")
+
+    //LetItCrash: JSON Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3")
 }
 tasks.test {

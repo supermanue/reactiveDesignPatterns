@@ -1,4 +1,4 @@
-import patterns.letItCrash.Run
+import patterns.heartbeat.Run
 
 fun main() {
 

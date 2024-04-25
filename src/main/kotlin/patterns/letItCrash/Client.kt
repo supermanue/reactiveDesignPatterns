@@ -38,20 +38,25 @@ class Client(private val clientInterface: ClientInterface, private val id: Int) 
      }
 
 
-    private fun produce() {
+    private suspend fun produce() {
         //30% chance of creating an invalid job
         val job = if (Math.random().absoluteValue < 0.7)
             Job("this is job $lastJobId of client $id")
         else
             Job("")
-      //  println("Client $id. Sending job: ${job.content}")
+        println("Client $id. Sending job: ${job.content}")
         lastJobId++
         saveState()
-        clientInterface.submit(id, job)
-      //  println("Client $id. Job sent: ${job.content}")
+        try {
+            clientInterface.submit(id, job)
+        }
+        catch (e: Exception){
+            println(e.message + "///" + e.cause)
+            println(e.stackTrace)
+        }
     }
 
-    private fun getJobStatus() {
+    private suspend fun getJobStatus() {
         val validations = clientInterface.getJobValidations(id)
   //      validations.forEach { validation -> println("Client $id. Validation for job ${validation.jobId}: ${validation.validationResult}") }
     }

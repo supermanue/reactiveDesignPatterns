@@ -1,6 +1,7 @@
 package patterns.letItCrash
 
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import patterns.errorKernel.model.ValidationResult
@@ -19,6 +20,7 @@ class JobScheduling(storage: Storage) {
     private val waitingForScheduling = mutableListOf<JobMetadata>()
     private val scheduled: Queue<JobMetadata> = LinkedList<JobMetadata>()
     private val validationResults = mutableListOf<ValidationResult>()
+    private val statesMutex = Mutex()
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
@@ -51,10 +53,12 @@ class JobScheduling(storage: Storage) {
         return listOf(jobValidation, jobPlanning)
     }
 
-    fun accept(clientId: Int, jobId: Int) {
+    suspend fun accept(clientId: Int, jobId: Int) {
         val jobMetadata = JobMetadata(clientId, jobId, JobStatus.WAITING)
+        statesMutex.lock()
         pending.add(jobMetadata)
-        saveArrayState(pending, "pending.txt")
+        statesMutex.unlock()
+        saveStates()
     }
 
     fun nextJob(): Int? {
@@ -62,35 +66,46 @@ class JobScheduling(storage: Storage) {
         return job?.jobId
     }
 
-
-    fun getJobValidations(clientId: Int): List<ValidationResult> {
+    suspend fun getJobValidations(clientId: Int): List<ValidationResult> {
         val jobIterator = validationResults.iterator()
         val validations = mutableListOf<ValidationResult>()
         while (jobIterator.hasNext()) {
             val job = jobIterator.next()
             if (job.clientId == clientId) {
+                statesMutex.lock()
                 validations.add(job)
                 jobIterator.remove()
+                statesMutex.unlock()
             }
         }
         return validations.toList()
     }
 
-    private fun validate() {
+    private suspend fun validate() {
         val result = validation.validateAll(pending)
+        statesMutex.lock()
         pending.clear()
         result.first.forEach { validationResults.add(it) }
         result.second.forEach { waitingForScheduling.add(it) }
-        saveArrayState(pending, "pending.txt")
-        saveArrayState(waitingForScheduling, "waitingForScheduling.txt")
+        statesMutex.unlock()
+        saveStates()
     }
 
-    private fun plan() {
+    private suspend fun plan() {
         val result = planning.scheduleAll(waitingForScheduling)
+        statesMutex.lock()
         waitingForScheduling.clear()
         result.forEach { scheduled.add(it) }
+        statesMutex.unlock()
+        saveStates()
+    }
+
+    private suspend fun saveStates(){
+        statesMutex.lock()
+        saveArrayState(pending, "pending.txt")
         saveArrayState(waitingForScheduling, "waitingForScheduling.txt")
         saveArrayState(scheduled.toList(), "scheduled.txt")
+        statesMutex.unlock()
     }
 
     private fun saveArrayState(data: List<JobMetadata>, name: String) {

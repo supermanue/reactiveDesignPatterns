@@ -29,4 +29,7 @@ How has this patter affected the modules:
 - JobScheduling: This module is now storing its internal state each time there is a modification. This is read at init
   time, so in the case of a failure it can pick up old tasks. Note that the storage part os not particularly efficient,
   I haven't put effort into that
-- Execution: 
+
+Also, as we are now exporting the state to files and that's a time-consuming operation, we need to control the access to
+those data structures. To do so I've just added a Mutex whenever necessary so there are no concurrency issues. It could
+be a more sophisticated solution but I think that's out of the scope of this projecrt
