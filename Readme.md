@@ -13,3 +13,5 @@ Pattern 1: Simple Components. [Readme](./src/main/kotlin/patterns/simpleComponen
 Pattern 2: Error Kernel. [Readme](./src/main/kotlin/patterns/errorKernel/readme.md)
 
 Pattern 3: Let It Crash. [Readme](./src/main/kotlin/patterns/letItCrash/readme.md)
+
+Pattern 3-b: Heartbeat. [Readme](./src/main/kotlin/patterns/letItCrash/readme.md)

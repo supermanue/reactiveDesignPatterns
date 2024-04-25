@@ -19,6 +19,9 @@ dependencies {
 
     //LetItCrash: JSON Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.6.3")
+
+    //Heartbeat: Guava Cache
+    implementation("com.google.guava:guava:33.1.0-jre")
 }
 tasks.test {
     useJUnitPlatform()

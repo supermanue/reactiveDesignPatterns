@@ -10,7 +10,7 @@ class Run {
     fun runForever() = runBlocking {
         val storage = Storage()
         val jobScheduling = JobScheduling(storage)
-        val execution = Execution(size = 2, jobScheduling, storage)
+        val execution = Execution(jobScheduling, storage)
         val clientInterface = ClientInterface(storage, jobScheduling)
         val clients = listOf(Client(clientInterface, 1), Client(clientInterface, 2), Client(clientInterface, 3))
 

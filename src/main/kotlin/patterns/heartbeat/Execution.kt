@@ -2,6 +2,7 @@ package patterns.heartbeat
 
 import com.google.common.cache.Cache
 import com.google.common.cache.CacheBuilder
+import com.google.common.cache.RemovalListener
 import kotlinx.coroutines.*
 import patterns.letItCrash.JobScheduling
 import patterns.letItCrash.Storage
@@ -14,10 +15,9 @@ class Execution(private val jobScheduling: JobScheduling, private val storage: S
     private var lastWorkerId = 0
     private var workers: Cache<Int, Worker> =
         CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(10, TimeUnit.SECONDS)
-            .build<Int, Worker>()
-    // .removalListener(RemovalListener<Int, Worker>() {notification ->
-    //        println("Key - " + notification.key + " removed due to " + notification.cause)
-    //})
+            .removalListener(RemovalListener<Int, Worker>() { notification ->
+            println("Worker " + notification.key + " removed")
+    }).build()
 
 
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
