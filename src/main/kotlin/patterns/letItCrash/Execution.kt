@@ -32,7 +32,7 @@ class Execution(private val jobScheduling: JobScheduling, private val storage: S
 
 
     private fun scale() {
-        val size = storage.getAll().size
+        val size = jobScheduling.queueSize()
         if (size > 15) {
             workers.add(Worker(lastWorkerId))
             lastWorkerId +=1

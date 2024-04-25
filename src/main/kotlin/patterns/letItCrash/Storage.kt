@@ -16,14 +16,9 @@ class Storage {
         return position
     }
 
-    fun getAll(): List<Pair<Int, Job>> {
-        return storageDataStructure.toList()
-    }
-
     fun get(id: Int): Job? {
         return storageDataStructure[id]
     }
-
 
     fun pop(id: Int): Job? {
         return storageDataStructure.remove(id)

@@ -81,6 +81,8 @@ class JobScheduling(storage: Storage) {
         return validations.toList()
     }
 
+    fun queueSize(): Int = scheduled.size
+
     private suspend fun validate() {
         val result = validation.validateAll(pending)
         statesMutex.lock()
